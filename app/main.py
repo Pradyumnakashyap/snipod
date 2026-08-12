@@ -30,7 +30,7 @@ app.add_middleware(HandleExceptionsMiddleware)
 
 
 def main():
-    port = int(os.getenv("SNIPOD_PORT", "8080"))
+    port = int(os.getenv("SNIPOD_LISTEN_PORT", "8080"))
     logger.info(f"Starting snipod on port {port}")
     uvicorn.run(
         "main:app",

@@ -13,10 +13,13 @@
 
 set -euo pipefail
 
+# All paths relative to this script's directory (test/)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CHART_PATH="$SCRIPT_DIR/../charts/snipod"
+EXAMPLES_PATH="$SCRIPT_DIR/../examples/dummy-app.yaml"
+
 NAMESPACE="${1:-pk-test}"
 RELEASE_NAME="snipod"
-CHART_PATH="charts/snipod"
-EXAMPLES_PATH="examples/dummy-app.yaml"
 CALLER_POD="snipod-test-caller"
 SNIPOD_SVC="http://snipod.${NAMESPACE}.svc.cluster.local/api/v1/scale_in"
 TOKEN_PATH="/var/run/secrets/snipod/token"

@@ -202,7 +202,7 @@ rules:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SNIPOD_PORT` | `8080` | Port to listen on |
+| `SNIPOD_LISTEN_PORT` | `8080` | Port to listen on |
 | `LOG_LEVEL` | `INFO` | Log level (DEBUG, INFO, WARNING, ERROR) |
 | `KUBERNETES_NAMESPACE` | auto | Overrides namespace detection |
 
