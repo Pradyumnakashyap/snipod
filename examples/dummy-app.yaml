@@ -1,0 +1,54 @@
+# Example: dummy deployment with 3 replicas to test scale-in against.
+# Deploy this in the same namespace as snipod.
+#
+# Usage:
+#   kubectl apply -f examples/dummy-app.yaml -n <namespace>
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-app
+  labels:
+    app: dummy-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dummy-app
+  template:
+    metadata:
+      labels:
+        app: dummy-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+---
+# Test caller pod with a projected SA token to call snipod.
+# The serviceAccountName must match the snipod SA (so the token audience is accepted).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: snipod-test-caller
+  labels:
+    app: snipod-test-caller
+spec:
+  serviceAccountName: snipod
+  containers:
+    - name: caller
+      image: curlimages/curl:latest
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - name: token
+          mountPath: /var/run/secrets/snipod
+          readOnly: true
+  volumes:
+    - name: token
+      projected:
+        sources:
+          - serviceAccountToken:
+              audience: snipod-sa
+              expirationSeconds: 3600
+              path: token
