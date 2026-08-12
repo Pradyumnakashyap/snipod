@@ -21,8 +21,7 @@ EXAMPLES_PATH="$SCRIPT_DIR/../examples/dummy-app.yaml"
 NAMESPACE="${1:-pk-test}"
 RELEASE_NAME="snipod"
 CALLER_POD="snipod-test-caller"
-SNIPOD_SVC="http://snipod.${NAMESPACE}.svc.cluster.local/api/v1/scale_in"
-TOKEN_PATH="/var/run/secrets/snipod/token"
+SNIPOD_SVC="http://snipod.${NAMESPACE}.svc.cluster.local"
 
 echo "=== Snipod Integration Test ==="
 echo "Namespace: $NAMESPACE"
@@ -58,7 +57,7 @@ echo ""
 # 5. Health check
 echo "[5/7] Testing health endpoint..."
 kubectl exec "$CALLER_POD" -n "$NAMESPACE" -- \
-  curl -sf "http://snipod.${NAMESPACE}.svc.cluster.local/health" | grep -q '"ok"'
+  curl -sf "${SNIPOD_SVC}/health" | grep -q '"ok"'
 echo "  ✓ Health check passed"
 echo ""
 
@@ -68,10 +67,10 @@ TARGET_POD=$(kubectl get pods -n "$NAMESPACE" -l app=dummy-app -o jsonpath='{.it
 echo "  Target: $TARGET_POD"
 
 RESPONSE=$(kubectl exec "$CALLER_POD" -n "$NAMESPACE" -- \
-  curl -sf -X POST "$SNIPOD_SVC" \
-    -H "Content-Type: application/json" \
-    -H "x-token: $(kubectl exec "$CALLER_POD" -n "$NAMESPACE" -- cat $TOKEN_PATH)" \
-    -d "{\"pod_name\": \"$TARGET_POD\"}")
+  sh -c "curl -sf -X POST ${SNIPOD_SVC}/api/v1/scale_in \
+    -H 'Content-Type: application/json' \
+    -H \"x-token: \$(cat /var/run/secrets/snipod/token)\" \
+    -d '{\"pod_name\": \"${TARGET_POD}\"}'")
 echo "  Response: $RESPONSE"
 echo ""
 
